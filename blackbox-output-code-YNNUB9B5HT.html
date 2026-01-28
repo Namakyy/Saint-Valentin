@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Une question pour toi...</title>
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Poppins:wght@300;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+        /* --- CSS : Le style de la page --- */
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+            font-family: 'Poppins', sans-serif;
+            overflow: hidden; /* Empêche le scroll */
+            position: relative;
+        }
+
+        /* Animation de fond (Cœurs flottants) */
+        .bg-heart {
+            position: absolute;
+            color: rgba(255, 255, 255, 0.5);
+            animation: floatUp linear infinite;
+            z-index: 0;
+            font-size: 20px;
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(100vh) scale(0.5); opacity: 0; }
+            50% { opacity: 1; }
+            100% { transform: translateY(-10vh) scale(1.2); opacity: 0; }
+        }
+
+        /* Conteneur principal */
+        .container {
+            text-align: center;
+            z-index: 10; /* Au-dessus du fond */
+            background: rgba(255, 255, 255, 0.8);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            max-width: 90%;
+        }
+
+        h1 {
+            font-family: 'Pacifico', cursive;
+            color: #ff4d6d;
+            font-size: 3rem;
+            margin-bottom: 30px;
+        }
+
+        .buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+        }
+
+        #yesBtn {
+            background-color: #ff4d6d;
+            color: white;
+            box-shadow: 0 4px 15px rgba(255, 77, 109, 0.4);
+        }
+
+        #noBtn {
+            background-color: #e0e0e0;
+            color: #333;
+        }
+
+        #noBtn:hover {
+            background-color: #d6d6d6;
+        }
+
+        /* Animation des fleurs qui montent */
+        .flower {
+            position: absolute;
+            bottom: -100px; /* Commence en bas, hors écran */
+            font-size: 4rem; /* Taille des fleurs */
+            animation: riseUp 6s linear forwards;
+            z-index: 5;
+            pointer-events: none; /* On ne peut pas cliquer dessus */
+        }
+
+        @keyframes riseUp {
+            0% { bottom: -100px; opacity: 1; transform: translateX(0) rotate(0deg); }
+            50% { transform: translateX(20px) rotate(10deg); }
+            100% { bottom: 110vh; opacity: 1; transform: translateX(-20px) rotate(-10deg); } /* Monte jusqu'en haut */
+        }
+
+        /* Message de succès caché au début */
+        #success-message {
+            display: none;
+            font-family: 'Pacifico', cursive;
+            color: #ff4d6d;
+            font-size: 2.5rem;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="bg-container"></div>
+
+    <div class="container">
+        <h1>Will you be my Valentine? 🌹</h1>
+        
+        <div class="buttons">
+            <button id="yesBtn">Yes! ❤️</button>
+            <button id="noBtn">No 😢</button>
+        </div>
+
+        <div id="success-message">Yay! I love you! 💖</div>
+    </div>
+
+    <script>
+        /* --- JAVASCRIPT --- */
+
+        const yesBtn = document.getElementById('yesBtn');
+        const noBtn = document.getElementById('noBtn');
+        const successMessage = document.getElementById('success-message');
+        const container = document.querySelector('.container');
+        
+        // 1. Générer les cœurs flottants en arrière-plan
+        function createHearts() {
+            const heart = document.createElement('div');
+            heart.classList.add('bg-heart');
+            heart.innerHTML = '❤️';
+            heart.style.left = Math.random() * 100 + 'vw';
+            heart.style.animationDuration = Math.random() * 3 + 4 + 's'; // Entre 4 et 7 sec
+            document.body.appendChild(heart);
+
+            setTimeout(() => {
+                heart.remove();
+            }, 7000);
+        }
+        setInterval(createHearts, 300);
+
+        // 2. Logique du bouton NON (Fait grossir le bouton OUI)
+        let scaleFactor = 1;
+        
+        noBtn.addEventListener('click', () => {
+            scaleFactor += 0.5; // Augmente la taille
+            yesBtn.style.transform = `scale(${scaleFactor})`;
+            
+            // Si le bouton devient trop gros, on peut déplacer le layout
+            // Optionnel : Changer le texte du bouton non
+            const phrases = ["Are you sure?", "Really sure?", "Think again!", "Last chance!", "Please?"];
+            const randomText = phrases[Math.floor(Math.random() * phrases.length)];
+            noBtn.innerText = randomText;
+        });
+
+        // 3. Logique du bouton OUI (Feu d'artifice + Fleurs)
+        yesBtn.addEventListener('click', () => {
+            // Cacher le bouton Non et figer le bouton Oui
+            noBtn.style.display = 'none';
+            yesBtn.style.transform = 'scale(1)';
+            yesBtn.style.display = 'none'; // On cache aussi le bouton oui pour laisser place au message
+            document.querySelector('h1').style.display = 'none'; // Cache la question
+            
+            successMessage.style.display = 'block';
+
+            // Lancer les feux d'artifice en cœur
+            launchHeartFireworks();
+
+            // Lancer les fleurs
+            launchFlowers();
+        });
+
+        function launchHeartFireworks() {
+            var duration = 5 * 1000;
+            var animationEnd = Date.now() + duration;
+            var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+
+            var interval = setInterval(function() {
+                var timeLeft = animationEnd - Date.now();
+
+                if (timeLeft <= 0) {
+                    return clearInterval(interval);
+                }
+
+                var particleCount = 50 * (timeLeft / duration);
+                
+                // Utilisation de la librairie canvas-confetti avec la forme 'heart'
+                confetti({
+                    particleCount: particleCount,
+                    startVelocity: 30,
+                    spread: 360,
+                    origin: { x: Math.random(), y: Math.random() - 0.2 },
+                    shapes: ['heart'],
+                    colors: ['#FFC0CB', '#FF69B4', '#FF1493', '#C71585'] // Nuances de rose
+                });
+            }, 250);
+        }
+
+        function launchFlowers() {
+            // Créer 30 fleurs qui montent
+            for(let i = 0; i < 30; i++) {
+                setTimeout(() => {
+                    const flower = document.createElement('div');
+                    flower.classList.add('flower');
+                    
+                    // Choix aléatoire entre Tulipe et Lys (Emoji pour l'instant)
+                    // Note : Pour mettre de vraies images, remplacez les emojis ci-dessous par :
+                    // flower.innerHTML = '<img src="lien_image.png" width="80px">';
+                    const isTulip = Math.random() > 0.5;
+                    flower.innerHTML = isTulip ? '🌷' : '💮'; // 💮 ressemble à un Lys, ou utiliser ⚜️ pour la fleur de lys héraldique
+                    
+                    flower.style.left = Math.random() * 100 + 'vw'; // Position horizontale aléatoire
+                    flower.style.animationDuration = (Math.random() * 3 + 4) + 's'; // Vitesse variable
+                    
+                    document.body.appendChild(flower);
+                }, i * 300); // Une fleur toutes les 300ms
+            }
+        }
+
+    </script>
+</body>
+</html>
